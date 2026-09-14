@@ -146,7 +146,7 @@
 
   <section class="camp">
     <div class="guide">
-      <button class="face" type="button" aria-label="Послухати мавпочку">🐒</button>
+      <button class="face" type="button" aria-label="Мавпочка">🐒</button>
       <div class="bubble" id="bubble" aria-live="polite">Привіт! Пройдемо всю карту і знайдемо скарб?</div>
     </div>
     <div class="pack" aria-label="Рюкзачок з наліпками">
@@ -207,26 +207,50 @@ if (S.name) nameInput.value = S.name;
 nameInput.addEventListener("input", () => { S.name = nameInput.value.trim(); save(); });
 const who = () => (S.name || "мандрівнице");
 
-const player = new Audio();
-let queue = [];
-player.addEventListener("ended", () => playNext());
-function playNext(){
-  const clip = queue.shift(); if (!clip) return;
-  player.src = `voice/${clip}.mp3`;
-  player.play().catch(() => {});
+/* sounds: synthesized with Web Audio, no files, work offline */
+let ac = null;
+function ctx(){
+  if (!ac){ const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; ac = new C(); }
+  if (ac.state === "suspended") ac.resume();
+  return ac;
 }
-function say(text, clips = []){
+const hz = semi => 440 * Math.pow(2, semi / 12);   // 0 = A4
+function tone(semi, at, dur, {type = "triangle", vol = .22, slideTo = null} = {}){
+  const a = ctx(); if (!a) return;
+  const t = a.currentTime + at, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(hz(semi), t);
+  if (slideTo !== null) o.frequency.exponentialRampToValueAtTime(hz(slideTo), t + dur * .8);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + .015);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + .05);
+}
+function bell(semi, at, dur = .5, vol = .2){ tone(semi, at, dur, {vol}); tone(semi + 12, at, dur * .6, {type:"sine", vol: vol * .35}); }
+const SOUNDS = {
+  // pling-arpeggio, each next task a step higher
+  done(step = 0){ const b = 15 + step * 2; [0, 4, 7, 12].forEach((s, i) => bell(b + s, i * .07, .45)); tone(b + 24, .3, .35, {type:"sine", vol:.08}); },
+  // soft bloop down
+  undo(){ tone(10, 0, .18, {type:"sine", vol:.18, slideTo:3}); tone(5, .14, .22, {type:"sine", vol:.14, slideTo:-2}); },
+  // springy monkey boing
+  boing(){ tone(-5, 0, .32, {type:"sine", vol:.25, slideTo:14}); tone(14, .22, .25, {type:"sine", vol:.15, slideTo:7}); },
+  // treasure fanfare
+  win(){
+    [[3,0],[8,.14],[12,.28],[15,.42]].forEach(([s,t]) => bell(s, t, .3, .2));
+    [15, 19, 22, 27].forEach(s => bell(s, .62, 1.3, .12));
+    [27, 31, 34, 39, 43].forEach((s, i) => tone(s, 1.05 + i * .06, .3, {type:"sine", vol:.06}));
+  },
+  // whoosh up for a fresh start
+  again(){ tone(0, 0, .45, {type:"sine", vol:.16, slideTo:24}); bell(27, .38, .5, .12); }
+};
+function say(text, sound, arg){
   $("bubble").textContent = text;
-  player.pause(); queue = [];
-  if (!S.sound || !clips.length) return;
-  queue = clips.slice(); playNext();
+  if (S.sound && sound && SOUNDS[sound]) try{ SOUNDS[sound](arg); }catch(e){}
 }
 const nextTask = () => TASKS.find(x => !S.done.includes(x.id));
 document.querySelector(".guide .face").addEventListener("click", () => {
   const n = nextTask();
-  if (!n) say("Ми знайшли скарб! Ти справжня мандрівниця!", ["win"]);
-  else if (!S.done.length) say("Привіт! Пройдемо всю карту і знайдемо скарб?", ["intro", "next_" + n.id]);
-  else say(`Далі — ${n.title.toLowerCase()}!`, ["next_" + n.id]);
+  if (!n) say("Ми знайшли скарб! Ти справжня мандрівниця!", "win");
+  else say(`Далі — ${n.title.toLowerCase()}!`, "boing");
 });
 
 function legSVG(i, walked){
@@ -269,26 +293,26 @@ $("trail").addEventListener("click", e => {
   const id = b.dataset.id, t = TASKS.find(x => x.id === id);
   if (S.done.includes(id)){
     S.done = S.done.filter(x => x !== id);
-    say(`Добре, повернемось до кроку: ${t.title.toLowerCase()}.`, ["next_" + id]);
+    say(`Добре, повернемось до кроку: ${t.title.toLowerCase()}.`, "undo");
   } else {
     S.done.push(id);
     const rect = b.getBoundingClientRect();
     burst(rect.left + rect.width - 30, rect.top + rect.height/2, 26);
     if (S.done.length === TASKS.length){
       if (S.lastFull !== today()){ S.streak = (S.lastFull === yesterday() ? S.streak : 0) + 1; S.lastFull = today(); }
-      say(`Ура! ${cap(who())}, ми знайшли скарб! Ми це зробили!`, ["done_" + id, "win"]);
+      say(`Ура! ${cap(who())}, ми знайшли скарб! Ми це зробили!`, "win");
       setTimeout(bigParty, 250);
     } else {
       const next = TASKS.find(x => !S.done.includes(x.id));
-      say(`${t.cheer} Далі — ${next.title.toLowerCase()}!`, ["done_" + id, "next_" + next.id]);
+      say(`${t.cheer} Далі — ${next.title.toLowerCase()}!`, "done", S.done.length - 1);
     }
   }
   save(); render();
   const again = document.getElementById("task-"+id); if (again) again.focus({preventScroll:true});
 });
 
-$("soundBtn").addEventListener("click", () => { S.sound = !S.sound; if(!S.sound){ player.pause(); queue = []; } save(); render(); });
-$("resetBtn").addEventListener("click", () => { S.done = []; save(); render(); say("Нова пригода починається! Перший крок — застелити ліжечко!", ["again", "next_bed"]); });
+$("soundBtn").addEventListener("click", () => { S.sound = !S.sound; save(); render(); if (S.sound) SOUNDS.boing(); });
+$("resetBtn").addEventListener("click", () => { S.done = []; save(); render(); say("Нова пригода починається! Перший крок — застелити ліжечко!", "again"); });
 
 /* confetti */
 const cv = $("fx"), cx = cv.getContext("2d");
