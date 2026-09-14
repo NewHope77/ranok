@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5EC8F2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ранок">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>Ранкова Експедиція</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&display=swap">
+<style>
+  :root{
+    --jungle:#1F8A5B; --jungle-deep:#12613F; --leaf:#7BD389;
+    --sun:#FFC93C; --pink:#E8457A; --sky:#5EC8F2; --sand:#FFF4D6;
+    --plum:#3A2350; --white:#FFFFFF;
+    --display:"Baloo 2","Arial Rounded MT Bold","Trebuchet MS",sans-serif;
+    --body:"Nunito","Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{background:var(--sky)}
+  body{
+    margin:0; color:var(--plum); font-family:var(--body); font-weight:600;
+    padding-inline:16px; padding-block:0 48px;
+    background:
+      radial-gradient(120px 60px at 12% 7%, #fff 60%, transparent 61%),
+      radial-gradient(90px 45px at 20% 9%, #fff 60%, transparent 61%),
+      radial-gradient(140px 60px at 85% 4%, #fff 60%, transparent 61%),
+      linear-gradient(#5EC8F2 0 260px, #7BD389 260px 300px, var(--sand) 300px);
+    min-height:100vh; overflow-x:hidden;
+  }
+  .wrap{max-width:560px; margin:0 auto; display:flex; flex-direction:column; gap:20px}
+
+  header{padding-top:28px; text-align:center; position:relative}
+  .sunball{position:absolute; right:-6px; top:18px; width:70px; height:70px; border-radius:50%;
+    background:var(--sun); box-shadow:0 0 0 10px #ffc93c55, 0 0 0 22px #ffc93c22; animation:spin 30s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .eyebrow{font-family:var(--display); font-weight:800; font-size:15px; letter-spacing:.12em; text-transform:uppercase; color:var(--plum); opacity:.75}
+  h1{font-family:var(--display); font-weight:800; margin:0; line-height:.95; font-size:clamp(40px,11vw,64px);
+    color:var(--sun); text-wrap:balance;
+    -webkit-text-stroke:3px var(--plum); paint-order:stroke fill; text-shadow:0 5px 0 var(--plum)}
+  .hello{margin-top:10px; font-size:20px; font-family:var(--display); font-weight:800; color:var(--white); text-shadow:0 2px 0 #0003}
+  .hello input{font:inherit; color:var(--plum); background:#ffffffcc; border:3px dashed var(--plum); border-radius:14px;
+    padding:0 10px; width:8ch; text-align:center}
+  .hello input:focus{outline:3px solid var(--sun); background:#fff}
+
+  /* helper + backpack */
+  .camp{display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end; margin-top:40px}
+  .guide{display:flex; gap:10px; align-items:flex-end}
+  .guide .face{font-size:58px; line-height:1; animation:bob 2.4s ease-in-out infinite; flex:none}
+  @keyframes bob{50%{transform:translateY(-6px) rotate(-4deg)}}
+  .bubble{background:var(--white); border:3px solid var(--plum); border-radius:20px 20px 20px 4px; padding:10px 14px;
+    font-size:17px; line-height:1.3; box-shadow:0 4px 0 var(--plum); min-height:52px}
+  .pack{background:var(--pink); color:var(--white); border:3px solid var(--plum); border-radius:26px 26px 18px 18px;
+    padding:10px 12px 12px; width:132px; box-shadow:0 5px 0 var(--plum); text-align:center; position:relative}
+  .pack::before{content:""; position:absolute; left:34px; right:34px; top:-14px; height:18px; border:3px solid var(--plum); border-bottom:0; border-radius:14px 14px 0 0}
+  .pack b{font-family:var(--display); font-size:13px; letter-spacing:.08em; text-transform:uppercase; display:block}
+  .pocket{display:grid; grid-template-columns:repeat(5,1fr); gap:2px; background:#ffffff33; border-radius:10px; padding:4px; margin-top:4px}
+  .pocket span{font-size:18px; height:22px; line-height:22px; opacity:.28; filter:grayscale(1); transition:all .4s}
+  .pocket span.got{opacity:1; filter:none; animation:pop .5s}
+  .count{font-family:var(--display); font-weight:800; font-size:22px; line-height:1; margin-top:4px; font-variant-numeric:tabular-nums}
+
+  /* map */
+  .map{background:var(--sand); border:4px solid var(--plum); border-radius:30px; padding:22px 16px 26px; box-shadow:0 8px 0 var(--plum);
+    background-image:radial-gradient(#e9d49c 1.5px, transparent 1.6px); background-size:18px 18px; position:relative}
+  .map h2{font-family:var(--display); font-weight:800; font-size:22px; margin:0 0 6px; text-align:center}
+  .trail{list-style:none; margin:0; padding:0; display:flex; flex-direction:column}
+  .leg{height:44px; width:100%; display:block}
+  .leg path{fill:none; stroke:var(--pink); stroke-width:5; stroke-dasharray:2 12; stroke-linecap:round}
+  .leg.walked path{stroke:var(--jungle)}
+  .stop{display:flex; width:84%}
+  .stop:nth-child(4n+3){margin-left:auto}
+  .stop button{all:unset; box-sizing:border-box; cursor:pointer; width:100%; display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center;
+    background:var(--white); border:4px solid var(--plum); border-radius:24px; padding:10px 14px 10px 10px; box-shadow:0 6px 0 var(--plum);
+    transition:transform .15s, box-shadow .15s, background .3s; -webkit-tap-highlight-color:transparent}
+  .stop button:active{transform:translateY(5px); box-shadow:0 1px 0 var(--plum)}
+  .stop button:focus-visible{outline:4px solid var(--sky); outline-offset:4px}
+  .stop button{grid-template-columns:1fr auto; padding:12px 16px 12px 12px}
+  .pics{display:flex; gap:10px; align-items:center}
+  .icon{width:76px; height:76px; border-radius:50%; background:var(--sky); display:grid; place-items:center; font-size:46px; border:3px solid var(--plum); position:relative}
+  .icon + .icon{background:#FFE08A}
+  .step{position:absolute; top:-8px; left:-8px; width:28px; height:28px; border-radius:50%; background:var(--sun); border:3px solid var(--plum);
+    font-family:var(--display); font-weight:800; font-size:15px; line-height:22px; text-align:center}
+  .label{font-family:var(--display); font-weight:800; font-size:21px; line-height:1.1; text-wrap:balance}
+  .hint{font-size:14px; opacity:.7; margin-top:2px}
+  .check{width:44px; height:44px; border-radius:50%; border:4px dashed var(--plum); display:grid; place-items:center; font-size:26px; opacity:.5}
+  .stop.next button{animation:nudge 1.6s ease-in-out infinite; background:#FFF9E6}
+  @keyframes nudge{0%,100%{transform:scale(1)} 50%{transform:scale(1.03)}}
+  .stop.done button{background:var(--leaf)}
+  .stop.done .icon{background:var(--sun)}
+  .stop.done .check{border-style:solid; background:var(--jungle); color:var(--white); opacity:1; animation:pop .45s}
+  .stop.done .label{text-decoration:line-through; text-decoration-thickness:3px; text-decoration-color:#12613F88}
+  @keyframes pop{0%{transform:scale(.3)} 60%{transform:scale(1.25)} 100%{transform:scale(1)}}
+
+  .treasure{margin-top:6px; text-align:center}
+  .chest{font-size:72px; line-height:1; display:inline-block; filter:grayscale(.9); opacity:.55; transition:all .5s}
+  .treasure.open .chest{filter:none; opacity:1; animation:pop .7s, bob 2s .7s ease-in-out infinite}
+  .treasure p{margin:4px 0 0; font-family:var(--display); font-weight:800; font-size:20px}
+
+  .win{display:none; background:var(--pink); color:var(--white); border:4px solid var(--plum); border-radius:28px; padding:18px; text-align:center; box-shadow:0 8px 0 var(--plum)}
+  .win.show{display:block; animation:pop .6s}
+  .win h3{font-family:var(--display); font-weight:800; font-size:clamp(30px,8vw,42px); margin:0; line-height:1; color:var(--sun); -webkit-text-stroke:2px var(--plum); paint-order:stroke fill}
+  .win p{margin:8px 0 0; font-size:18px}
+
+  .parents{display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; font-size:14px; color:var(--plum)}
+  .streak{font-family:var(--display); font-weight:800; font-size:18px; font-variant-numeric:tabular-nums}
+  .tools{display:flex; gap:8px}
+  .tools button{font:inherit; font-weight:800; color:var(--plum); background:var(--white); border:3px solid var(--plum); border-radius:999px; padding:6px 14px; cursor:pointer}
+  .tools button:focus-visible{outline:3px solid var(--pink); outline-offset:2px}
+
+  canvas#fx{position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:10}
+
+  @media (max-width:420px){
+    .stop{width:92%}
+    .icon{width:62px; height:62px; font-size:38px}
+    .pics{gap:6px}
+    .check{width:38px; height:38px; font-size:22px}
+    .pack{width:112px}
+    .guide .face{font-size:46px}
+    .bubble{font-size:15px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+  body{padding-top:env(safe-area-inset-top); -webkit-user-select:none; user-select:none}
+  .hello input{-webkit-user-select:text; user-select:text}
+</style>
+</head>
+<body>
+
+
+<canvas id="fx"></canvas>
+<div class="wrap">
+  <header>
+    <div class="sunball" aria-hidden="true"></div>
+    <div class="eyebrow">Карта скарбів · ранок</div>
+    <h1>Ранкова Експедиція</h1>
+    <div class="hello">Вперед, <input id="kidName" aria-label="Ім'я мандрівниці" value="Мандрівнице" maxlength="14">!</div>
+  </header>
+
+  <section class="camp">
+    <div class="guide">
+      <div class="face" aria-hidden="true">🐒</div>
+      <div class="bubble" id="bubble" aria-live="polite">Привіт! Пройдемо всю карту і знайдемо скарб?</div>
+    </div>
+    <div class="pack" aria-label="Рюкзачок з наліпками">
+      <b>Рюкзачок</b>
+      <div class="pocket" id="pocket"></div>
+      <div class="count" id="count">0 / 5 ⭐</div>
+    </div>
+  </section>
+
+  <main class="map">
+    <h2>Шлях до скарбу</h2>
+    <ol class="trail" id="trail"></ol>
+    <div class="treasure" id="treasure">
+      <div class="chest" aria-hidden="true">🎁</div>
+      <p id="treasureText">Скарб чекає в кінці шляху!</p>
+    </div>
+  </main>
+
+  <section class="win" id="win" aria-live="polite">
+    <h3>Ми це зробили!</h3>
+    <p id="winText">Ти справжня мандрівниця! Всі 5 зірочок у рюкзачку!</p>
+  </section>
+
+  <footer class="parents">
+    <div class="streak" id="streak">🔥 0 днів поспіль</div>
+    <div class="tools">
+      <button id="soundBtn" type="button">🔊 Голос</button>
+      <button id="resetBtn" type="button">↺ Заново</button>
+    </div>
+  </footer>
+</div>
+
+<script>
+const TASKS = [
+  {id:"bed",   pics:["🛏️","🧸"], title:"Застелити ліжечко",         sticker:"🦋", cheer:"Ліжечко готове! Метелик летить у рюкзачок!"},
+  {id:"wc",    pics:["🚽","🧼"], title:"Сходити в туалет",          sticker:"🌸", cheer:"Молодчинка! Квіточка — твоя!"},
+  {id:"wash",  pics:["💦","🪥"], title:"Вмитися і почистити зубки", sticker:"🐬", cheer:"Ух, які чистенькі зубки! Дельфінчик пливе до тебе!"},
+  {id:"dress", pics:["👗","👟"], title:"Вдягнутися",                sticker:"🌈", cheer:"Яка гарна! Лови веселку!"},
+  {id:"hair",  pics:["💇‍♀️","🎀"], title:"Причесатися",               sticker:"👑", cheer:"Справжня принцеса-мандрівниця! Коронка твоя!"}
+];
+const KEY = "morning-expedition-v1";
+const today = () => new Date().toLocaleDateString("sv");
+const yesterday = () => { const d=new Date(); d.setDate(d.getDate()-1); return d.toLocaleDateString("sv"); };
+
+function load(){
+  let s; try{ s = JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+  s = Object.assign({date:today(), done:[], name:"", streak:0, lastFull:"", sound:true}, s||{});
+  if (s.date !== today()){ s.date = today(); s.done = []; }
+  if (s.lastFull && s.lastFull !== today() && s.lastFull !== yesterday()) s.streak = 0;
+  return s;
+}
+let S = load();
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
+
+const $ = id => document.getElementById(id);
+const nameInput = $("kidName");
+if (S.name) nameInput.value = S.name;
+nameInput.addEventListener("input", () => { S.name = nameInput.value.trim(); save(); });
+const who = () => (S.name || "мандрівнице");
+
+function say(text){
+  $("bubble").textContent = text;
+  if (!S.sound || !("speechSynthesis" in window)) return;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "uk-UA"; u.rate = .95; u.pitch = 1.25;
+    const v = speechSynthesis.getVoices().find(v => v.lang && v.lang.toLowerCase().startsWith("uk"));
+    if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function legSVG(i, walked){
+  const toRight = i % 2 === 0;
+  const d = toRight ? "M 22 0 C 22 30, 78 14, 78 44" : "M 78 0 C 78 30, 22 14, 22 44";
+  return `<li aria-hidden="true"><svg class="leg ${walked?'walked':''}" viewBox="0 0 100 44" preserveAspectRatio="none"><path d="${d}" vector-effect="non-scaling-stroke"/></svg></li>`;
+}
+
+function render(){
+  const trail = $("trail");
+  const nextIdx = TASKS.findIndex(t => !S.done.includes(t.id));
+  trail.innerHTML = TASKS.map((t,i) => {
+    const done = S.done.includes(t.id);
+    const cls = done ? "done" : (i === nextIdx ? "next" : "");
+    const stop = `<li class="stop ${cls}">
+      <button type="button" id="task-${t.id}" data-id="${t.id}" aria-pressed="${done}" aria-label="${t.title}">
+        <span class="pics" aria-hidden="true">${t.pics.map(p => `<span class="icon">${p}</span>`).join("")}</span>
+        <span class="check" aria-hidden="true">${done ? "✓" : ""}</span>
+      </button></li>`;
+    return stop + (i < TASKS.length-1 ? legSVG(i, done) : "");
+  }).join("");
+
+  $("pocket").innerHTML = TASKS.map(t => `<span class="${S.done.includes(t.id)?'got':''}">${t.sticker}</span>`).join("");
+  const n = S.done.length;
+  $("count").textContent = `${n} / ${TASKS.length} ⭐`;
+  const all = n === TASKS.length;
+  $("treasure").classList.toggle("open", all);
+  $("treasureText").textContent = all ? "Скарб знайдено! 💎" : `Ще ${TASKS.length-n} ${plural(TASKS.length-n)} до скарбу!`;
+  $("win").classList.toggle("show", all);
+  $("winText").textContent = `${cap(who())}, ти справжня мандрівниця! Всі 5 зірочок у рюкзачку!`;
+  $("streak").textContent = `🔥 ${S.streak} ${days(S.streak)} поспіль`;
+  $("soundBtn").textContent = S.sound ? "🔊 Голос" : "🔇 Тихо";
+}
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+function plural(n){ return n===1 ? "крок" : (n>=2&&n<=4 ? "кроки" : "кроків"); }
+function days(n){ const m10=n%10, m100=n%100; if(m10===1&&m100!==11) return "день"; if(m10>=2&&m10<=4&&(m100<12||m100>14)) return "дні"; return "днів"; }
+
+$("trail").addEventListener("click", e => {
+  const b = e.target.closest("button[data-id]"); if (!b) return;
+  const id = b.dataset.id, t = TASKS.find(x => x.id === id);
+  if (S.done.includes(id)){
+    S.done = S.done.filter(x => x !== id);
+    say(`Добре, повернемось до кроку: ${t.title.toLowerCase()}.`);
+  } else {
+    S.done.push(id);
+    const rect = b.getBoundingClientRect();
+    burst(rect.left + rect.width - 30, rect.top + rect.height/2, 26);
+    if (S.done.length === TASKS.length){
+      if (S.lastFull !== today()){ S.streak = (S.lastFull === yesterday() ? S.streak : 0) + 1; S.lastFull = today(); }
+      say(`Ура! ${cap(who())}, ми знайшли скарб! Ми це зробили!`);
+      setTimeout(bigParty, 250);
+    } else {
+      const next = TASKS.find(x => !S.done.includes(x.id));
+      say(`${t.cheer} Далі — ${next.title.toLowerCase()}!`);
+    }
+  }
+  save(); render();
+  const again = document.getElementById("task-"+id); if (again) again.focus({preventScroll:true});
+});
+
+$("soundBtn").addEventListener("click", () => { S.sound = !S.sound; if(!S.sound && "speechSynthesis" in window) speechSynthesis.cancel(); save(); render(); });
+$("resetBtn").addEventListener("click", () => { S.done = []; save(); render(); say("Нова пригода починається! Перший крок — застелити ліжечко!"); });
+
+/* confetti */
+const cv = $("fx"), cx = cv.getContext("2d");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let parts = [], raf = 0;
+function size(){ cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio; }
+size(); addEventListener("resize", size);
+const COLORS = ["#FFC93C","#E8457A","#5EC8F2","#1F8A5B","#7BD389","#FFFFFF"];
+function burst(x, y, n){
+  if (reduce) return;
+  for (let i=0;i<n;i++){
+    const a = Math.random()*Math.PI*2, v = 3 + Math.random()*6;
+    parts.push({x, y, vx:Math.cos(a)*v, vy:Math.sin(a)*v - 4, r:4+Math.random()*5, c:COLORS[i%COLORS.length], life:70+Math.random()*40, rot:Math.random()*6, star:Math.random()<.35});
+  }
+  if (!raf) raf = requestAnimationFrame(tick);
+}
+function bigParty(){ for (let k=0;k<6;k++) setTimeout(() => burst(Math.random()*innerWidth, innerHeight*(.2+Math.random()*.4), 45), k*220); }
+function starPath(r){ cx.beginPath(); for(let i=0;i<10;i++){ const rr = i%2 ? r*.45 : r, a = i*Math.PI/5 - Math.PI/2; cx.lineTo(Math.cos(a)*rr, Math.sin(a)*rr); } cx.closePath(); }
+function tick(){
+  const d = devicePixelRatio;
+  cx.clearRect(0,0,cv.width,cv.height);
+  parts = parts.filter(p => p.life > 0);
+  for (const p of parts){
+    p.vy += .22; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.rot += .15; p.life--;
+    cx.save(); cx.translate(p.x*d, p.y*d); cx.rotate(p.rot); cx.globalAlpha = Math.min(1, p.life/30);
+    cx.fillStyle = p.c;
+    if (p.star){ starPath(p.r*1.6*d); cx.fill(); } else cx.fillRect(-p.r*d, -p.r*.5*d, p.r*2*d, p.r*d);
+    cx.restore();
+  }
+  raf = parts.length ? requestAnimationFrame(tick) : (cx.clearRect(0,0,cv.width,cv.height), 0);
+}
+
+render();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+
+</body>
+</html>
