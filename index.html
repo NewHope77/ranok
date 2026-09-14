@@ -53,7 +53,9 @@
   /* helper + backpack */
   .camp{display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end; margin-top:40px}
   .guide{display:flex; gap:10px; align-items:flex-end}
-  .guide .face{font-size:58px; line-height:1; animation:bob 2.4s ease-in-out infinite; flex:none}
+  .guide .face{all:unset; cursor:pointer; font-size:58px; line-height:1; animation:bob 2.4s ease-in-out infinite; flex:none; position:relative; -webkit-tap-highlight-color:transparent}
+  .guide .face::after{content:"🔊"; position:absolute; right:-6px; bottom:-2px; font-size:18px; background:var(--sun); border:2px solid var(--plum); border-radius:50%; width:26px; height:26px; line-height:24px; text-align:center}
+  .guide .face:focus-visible{outline:3px solid var(--pink); outline-offset:4px; border-radius:50%}
   @keyframes bob{50%{transform:translateY(-6px) rotate(-4deg)}}
   .bubble{background:var(--white); border:3px solid var(--plum); border-radius:20px 20px 20px 4px; padding:10px 14px;
     font-size:17px; line-height:1.3; box-shadow:0 4px 0 var(--plum); min-height:52px}
@@ -144,7 +146,7 @@
 
   <section class="camp">
     <div class="guide">
-      <div class="face" aria-hidden="true">🐒</div>
+      <button class="face" type="button" aria-label="Послухати мавпочку">🐒</button>
       <div class="bubble" id="bubble" aria-live="polite">Привіт! Пройдемо всю карту і знайдемо скарб?</div>
     </div>
     <div class="pack" aria-label="Рюкзачок з наліпками">
@@ -205,18 +207,27 @@ if (S.name) nameInput.value = S.name;
 nameInput.addEventListener("input", () => { S.name = nameInput.value.trim(); save(); });
 const who = () => (S.name || "мандрівнице");
 
-function say(text){
-  $("bubble").textContent = text;
-  if (!S.sound || !("speechSynthesis" in window)) return;
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "uk-UA"; u.rate = .95; u.pitch = 1.25;
-    const v = speechSynthesis.getVoices().find(v => v.lang && v.lang.toLowerCase().startsWith("uk"));
-    if (v) u.voice = v;
-    speechSynthesis.speak(u);
-  }catch(e){}
+const player = new Audio();
+let queue = [];
+player.addEventListener("ended", () => playNext());
+function playNext(){
+  const clip = queue.shift(); if (!clip) return;
+  player.src = `voice/${clip}.mp3`;
+  player.play().catch(() => {});
 }
+function say(text, clips = []){
+  $("bubble").textContent = text;
+  player.pause(); queue = [];
+  if (!S.sound || !clips.length) return;
+  queue = clips.slice(); playNext();
+}
+const nextTask = () => TASKS.find(x => !S.done.includes(x.id));
+document.querySelector(".guide .face").addEventListener("click", () => {
+  const n = nextTask();
+  if (!n) say("Ми знайшли скарб! Ти справжня мандрівниця!", ["win"]);
+  else if (!S.done.length) say("Привіт! Пройдемо всю карту і знайдемо скарб?", ["intro", "next_" + n.id]);
+  else say(`Далі — ${n.title.toLowerCase()}!`, ["next_" + n.id]);
+});
 
 function legSVG(i, walked){
   const toRight = i % 2 === 0;
@@ -258,26 +269,26 @@ $("trail").addEventListener("click", e => {
   const id = b.dataset.id, t = TASKS.find(x => x.id === id);
   if (S.done.includes(id)){
     S.done = S.done.filter(x => x !== id);
-    say(`Добре, повернемось до кроку: ${t.title.toLowerCase()}.`);
+    say(`Добре, повернемось до кроку: ${t.title.toLowerCase()}.`, ["next_" + id]);
   } else {
     S.done.push(id);
     const rect = b.getBoundingClientRect();
     burst(rect.left + rect.width - 30, rect.top + rect.height/2, 26);
     if (S.done.length === TASKS.length){
       if (S.lastFull !== today()){ S.streak = (S.lastFull === yesterday() ? S.streak : 0) + 1; S.lastFull = today(); }
-      say(`Ура! ${cap(who())}, ми знайшли скарб! Ми це зробили!`);
+      say(`Ура! ${cap(who())}, ми знайшли скарб! Ми це зробили!`, ["done_" + id, "win"]);
       setTimeout(bigParty, 250);
     } else {
       const next = TASKS.find(x => !S.done.includes(x.id));
-      say(`${t.cheer} Далі — ${next.title.toLowerCase()}!`);
+      say(`${t.cheer} Далі — ${next.title.toLowerCase()}!`, ["done_" + id, "next_" + next.id]);
     }
   }
   save(); render();
   const again = document.getElementById("task-"+id); if (again) again.focus({preventScroll:true});
 });
 
-$("soundBtn").addEventListener("click", () => { S.sound = !S.sound; if(!S.sound && "speechSynthesis" in window) speechSynthesis.cancel(); save(); render(); });
-$("resetBtn").addEventListener("click", () => { S.done = []; save(); render(); say("Нова пригода починається! Перший крок — застелити ліжечко!"); });
+$("soundBtn").addEventListener("click", () => { S.sound = !S.sound; if(!S.sound){ player.pause(); queue = []; } save(); render(); });
+$("resetBtn").addEventListener("click", () => { S.done = []; save(); render(); say("Нова пригода починається! Перший крок — застелити ліжечко!", ["again", "next_bed"]); });
 
 /* confetti */
 const cv = $("fx"), cx = cv.getContext("2d");
