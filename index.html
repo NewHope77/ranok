@@ -140,6 +140,55 @@
   .cell.bad{animation:shake .4s}
   @keyframes shake{25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}}
 
+
+  /* екрани ігор */
+  .gscreen{flex:1; min-height:0; display:flex; flex-direction:column; gap:8px; max-width:560px; width:100%; margin:0 auto}
+  .gscreen[hidden]{display:none}
+  .menu{flex:1; min-height:0; display:grid; grid-template-rows:repeat(3,1fr); gap:12px; padding:6px 0}
+  .menu button{all:unset; cursor:pointer; box-sizing:border-box; display:flex; justify-content:center; gap:clamp(10px,4vw,22px); align-items:center;
+    background:var(--white); border:4px solid var(--plum); border-radius:26px; box-shadow:0 6px 0 var(--plum); padding:10px 16px}
+  .menu button:active{transform:translateY(4px); box-shadow:0 2px 0 var(--plum)}
+  .menu button:focus-visible{outline:4px solid var(--pink); outline-offset:3px}
+  .menu .mi{font-size:clamp(38px,13vw,64px); line-height:1}
+  .menu .mp{display:flex; gap:6px; justify-content:center}
+  .menu .mp span{width:clamp(26px,8vw,40px); height:clamp(26px,8vw,40px); border-radius:50%; background:var(--sun); border:3px solid var(--plum);
+    display:grid; place-items:center; font-size:clamp(14px,5vw,22px)}
+
+  /* зірочки прогресу */
+  .stars{flex:none; display:flex; justify-content:center; gap:6px; font-size:clamp(22px,7vw,32px)}
+  .stars span{opacity:.45; filter:grayscale(1) brightness(.75)}
+  .stars span.got{opacity:1; filter:none; animation:pop .5s}
+
+  /* ланцюжок */
+  .chainwrap{flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; gap:clamp(10px,3vh,26px)}
+  .chain{display:grid; grid-template-columns:repeat(4,1fr); gap:6px}
+  .chain .slot{aspect-ratio:1; display:grid; place-items:center; background:var(--white); border:3px solid #E0A96D; border-radius:14px;
+    font-size:min(9vw,38px); line-height:1}
+  .chain .slot.q{background:var(--sand); border:4px dashed var(--plum); animation:nudge 1.5s ease-in-out infinite}
+  .chain .slot.fill{background:var(--leaf); border-color:var(--jungle); animation:pop .5s}
+  .opts{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+  .opt{all:unset; cursor:pointer; box-sizing:border-box; aspect-ratio:1; display:grid; place-items:center;
+    background:var(--white); border:4px solid var(--plum); border-radius:22px; box-shadow:0 5px 0 var(--plum); font-size:min(12vw,46px); line-height:1}
+  .opt:active{transform:translateY(4px); box-shadow:0 1px 0 var(--plum)}
+  .opt:focus-visible{outline:4px solid var(--sky); outline-offset:3px}
+  .opt.bad{animation:shake .4s}
+
+  /* повтори за мною */
+  .padwrap{flex:1; min-height:0; display:grid; place-items:center}
+  .pads{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; width:min(100%, 340px, calc((100dvh - 230px)))}
+  .pad{all:unset; cursor:pointer; box-sizing:border-box; aspect-ratio:1; display:grid; place-items:center;
+    background:var(--white); border:5px solid var(--plum); border-radius:28px; box-shadow:0 6px 0 var(--plum);
+    font-size:min(16vw,64px); line-height:1; transition:background .15s, transform .15s}
+  .pad.lit{background:var(--sun); transform:scale(1.06)}
+  .pad.bad{background:#ffb3c8; animation:shake .4s}
+  .pad:active{transform:scale(.95)}
+  .pad:focus-visible{outline:4px solid var(--sky); outline-offset:3px}
+  .pads.wait .pad{cursor:default; opacity:.85}
+
+  /* кубок у кінці гри */
+  .prize{flex:none; display:grid; place-items:center; font-size:clamp(46px,14vw,74px); line-height:1; animation:pop .6s}
+  .prize[hidden]{display:none}
+
   @media (max-height:640px){
     :root{--row: calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 180px) / 5)}
     .round{width:54px; height:54px; font-size:32px}
@@ -182,17 +231,69 @@
 
 
 <div class="game" id="game" hidden>
-  <header class="gtop">
-    <button class="small" id="gBack" type="button" aria-label="Назад">⬅️</button>
-    <div class="patt" id="patt" aria-label="Порядок рухів"></div>
-    <button class="small" id="gNew" type="button" aria-label="Нова гра">🎲</button>
-  </header>
-  <div class="gwrap">
-    <div class="board">
-      <div class="grid" id="grid" role="group" aria-label="Стежка рухів"></div>
-      <button class="finish" id="finish" type="button" aria-label="Фініш">🏁</button>
+
+  <!-- меню ігор -->
+  <section class="gscreen" id="gMenu">
+    <header class="gtop">
+      <button class="small" id="mBack" type="button" aria-label="До завдань">⬅️</button>
+      <div class="patt"><span>🎮</span><span>🧩</span><span>⭐</span></div>
+      <span class="small" style="visibility:hidden" aria-hidden="true">·</span>
+    </header>
+    <div class="menu">
+      <button type="button" data-game="path" aria-label="Стежка рухів">
+        <span class="mi">🗺️</span><span class="mp"><span>🏃‍♀️</span><span>🤸‍♀️</span><span>🏁</span></span>
+      </button>
+      <button type="button" data-game="chain" aria-label="Продовж ланцюжок">
+        <span class="mi">🔗</span><span class="mp"><span>🍎</span><span>🍌</span><span>❓</span></span>
+      </button>
+      <button type="button" data-game="echo" aria-label="Повтори за мною">
+        <span class="mi">🐒</span><span class="mp"><span>1️⃣</span><span>2️⃣</span><span>3️⃣</span></span>
+      </button>
     </div>
-  </div>
+  </section>
+
+  <!-- 1. стежка рухів -->
+  <section class="gscreen" id="gPath" hidden>
+    <header class="gtop">
+      <button class="small" id="gBack" type="button" aria-label="Назад">⬅️</button>
+      <div class="patt" id="patt" aria-label="Порядок рухів"></div>
+      <button class="small" id="gNew" type="button" aria-label="Нова гра">🎲</button>
+    </header>
+    <div class="gwrap">
+      <div class="board">
+        <div class="grid" id="grid" role="group" aria-label="Стежка рухів"></div>
+        <button class="finish" id="finish" type="button" aria-label="Фініш">🏁</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. продовж ланцюжок -->
+  <section class="gscreen" id="gChain" hidden>
+    <header class="gtop">
+      <button class="small" id="cBack" type="button" aria-label="Назад">⬅️</button>
+      <div class="patt" id="cPatt" aria-label="Візерунок"></div>
+      <button class="small" id="cNew" type="button" aria-label="Нова гра">🎲</button>
+    </header>
+    <div class="stars" id="cStars"></div>
+    <div class="chainwrap">
+      <div class="chain" id="chain"></div>
+      <div class="opts" id="opts"></div>
+    </div>
+    <div class="prize" id="cPrize" hidden>🏆</div>
+  </section>
+
+  <!-- 3. повтори за мною -->
+  <section class="gscreen" id="gEcho" hidden>
+    <header class="gtop">
+      <button class="small" id="eBack" type="button" aria-label="Назад">⬅️</button>
+      <div class="patt" id="ePatt" aria-label="Показати ще раз"><span id="eShow">🐒</span></div>
+      <button class="small" id="eNew" type="button" aria-label="Нова гра">🎲</button>
+    </header>
+    <div class="stars" id="eStars"></div>
+    <div class="padwrap"><div class="pads" id="pads"></div></div>
+    <div class="prize" id="ePrize" hidden>🏆</div>
+  </section>
+
 </div>
 
 <script>
@@ -419,9 +520,148 @@ $("finish").addEventListener("click", () => {
   }
 });
 
-$("gameBtn").addEventListener("click", () => { $("game").hidden = false; if (!G) newGame(); else drawGame(); play("boing"); });
-$("gBack").addEventListener("click", () => { $("game").hidden = true; play("boing"); });
+$("gameBtn").addEventListener("click", () => { $("game").hidden = false; showScreen("menu"); play("boing"); });
+$("gBack").addEventListener("click", () => { showScreen("menu"); play("boing"); });
 $("gNew").addEventListener("click", newGame);
+
+/* --- перемикання екранів ігор --- */
+const SCREENS = {menu:"gMenu", path:"gPath", chain:"gChain", echo:"gEcho"};
+function showScreen(name){
+  stopEcho();
+  for (const k in SCREENS) $(SCREENS[k]).hidden = k !== name;
+  if (name === "path" && !G) newGame();
+  if (name === "chain" && !C) newChain();
+  if (name === "echo") { if (!E) newEcho(); else setTimeout(showEchoSeq, 400); }
+}
+document.querySelectorAll("[data-game]").forEach(b =>
+  b.addEventListener("click", () => { play("boing"); showScreen(b.dataset.game); }));
+$("mBack").addEventListener("click", () => { $("game").hidden = true; stopEcho(); play("boing"); });
+$("cBack").addEventListener("click", () => { showScreen("menu"); play("boing"); });
+$("eBack").addEventListener("click", () => { showScreen("menu"); play("boing"); });
+
+/* --- гра 2: продовж ланцюжок --- */
+const THINGS = ["🍎","🍌","🍓","🍇","🍐","🍒","⭐","🌸","🦋","🐬"];
+const CHAIN_SLOTS = 8, CHAIN_ROUNDS = 5;
+let C = null;
+
+function makeChain(){
+  const bag = shuffled(THINGS);
+  const len = 2 + rnd(2);                       // візерунок із 2 або 3 картинок
+  const pat = bag.slice(0, len);
+  const answer = pat[(CHAIN_SLOTS - 1) % len];
+  const others = bag.slice(len).filter(x => x !== answer).slice(0, 2);
+  return {pat, answer, opts: shuffled([answer, ...others])};
+}
+function newChain(){
+  C = {round: 0, stars: 0, ...makeChain(), filled: false};
+  drawChain(); play("again");
+}
+function drawChain(){
+  if (!C) return;
+  $("cPatt").innerHTML = C.pat.map(p => `<span>${p}</span>`).join("");
+  let html = "";
+  for (let i = 0; i < CHAIN_SLOTS; i++){
+    const last = i === CHAIN_SLOTS - 1;
+    if (last) html += `<span class="slot ${C.filled ? "fill" : "q"}">${C.filled ? C.answer : "❓"}</span>`;
+    else html += `<span class="slot">${C.pat[i % C.pat.length]}</span>`;
+  }
+  $("chain").innerHTML = html;
+  $("opts").innerHTML = C.round >= CHAIN_ROUNDS ? "" :
+    C.opts.map(o => `<button class="opt" type="button" data-opt="${o}" aria-label="${o}">${o}</button>`).join("");
+  $("cStars").innerHTML = Array.from({length: CHAIN_ROUNDS}, (_, i) =>
+    `<span class="${i < C.stars ? "got" : ""}">⭐</span>`).join("");
+  $("cPrize").hidden = C.round < CHAIN_ROUNDS;
+}
+$("opts").addEventListener("click", e => {
+  const b = e.target.closest("[data-opt]"); if (!b || !C || C.filled) return;
+  if (b.dataset.opt === C.answer){
+    C.filled = true; C.stars++; C.round++;
+    const r = b.getBoundingClientRect();
+    burst(r.left + r.width / 2, r.top + r.height / 2, 14);
+    drawChain();
+    if (C.round >= CHAIN_ROUNDS){ play("win"); setTimeout(bigParty, 200); }
+    else {
+      play("done", C.round);
+      setTimeout(() => { Object.assign(C, makeChain(), {filled: false}); drawChain(); }, 900);
+    }
+  } else {
+    play("undo");
+    b.classList.add("bad");
+    setTimeout(() => b.classList.remove("bad"), 420);
+  }
+});
+$("cNew").addEventListener("click", newChain);
+
+/* --- гра 3: повтори за мною --- */
+const ECHO_LEVELS = 5;
+let E = null, echoTimers = [];
+function stopEcho(){ echoTimers.forEach(clearTimeout); echoTimers = []; $("pads").classList.remove("wait");
+  document.querySelectorAll(".pad.lit").forEach(p => p.classList.remove("lit")); }
+
+function newEcho(){
+  E = {moves: shuffled(MOVES).slice(0, 4), level: 2, stars: 0, seq: [], pos: 0, done: false};
+  nextEchoRound();
+}
+function nextEchoRound(){
+  $("pads").classList.add("wait");
+  E.seq = Array.from({length: E.level}, () => E.moves[rnd(4)]);
+  E.pos = 0;
+  drawEcho();
+  setTimeout(showEchoSeq, 600);
+}
+function drawEcho(){
+  if (!E) return;
+  $("pads").innerHTML = E.moves.map(m => `<button class="pad" type="button" data-pad="${m}" aria-label="${m}">${m}</button>`).join("");
+  $("eStars").innerHTML = Array.from({length: ECHO_LEVELS}, (_, i) =>
+    `<span class="${i < E.stars ? "got" : ""}">⭐</span>`).join("");
+  $("ePrize").hidden = !E.done;
+}
+function showEchoSeq(){
+  if (!E || E.done || $("gEcho").hidden) return;
+  stopEcho();
+  $("pads").classList.add("wait");
+  E.seq.forEach((m, i) => {
+    echoTimers.push(setTimeout(() => {
+      const pad = document.querySelector(`[data-pad="${m}"]`);
+      if (!pad) return;
+      pad.classList.add("lit");
+      play("done", i % 5);
+      echoTimers.push(setTimeout(() => pad.classList.remove("lit"), 420));
+    }, 300 + i * 700));
+  });
+  echoTimers.push(setTimeout(() => { $("pads").classList.remove("wait"); E.pos = 0; }, 300 + E.seq.length * 700));
+}
+$("pads").addEventListener("click", e => {
+  const b = e.target.closest("[data-pad]"); if (!b || !E || E.done) return;
+  if ($("pads").classList.contains("wait")) return;
+  if (b.dataset.pad === E.seq[E.pos]){
+    E.pos++;
+    b.classList.add("lit");
+    setTimeout(() => b.classList.remove("lit"), 220);
+    play("done", E.pos % 5);
+    if (E.pos === E.seq.length){
+      E.stars++;
+      const r = b.getBoundingClientRect();
+      burst(r.left + r.width / 2, r.top + r.height / 2, 16);
+      if (E.stars >= ECHO_LEVELS){
+        E.done = true; drawEcho(); play("win"); setTimeout(bigParty, 200);
+      } else {
+        E.level++; drawEcho();
+        $("pads").classList.add("wait");
+        echoTimers.push(setTimeout(nextEchoRound, 900));
+      }
+    }
+  } else {
+    play("undo");
+    b.classList.add("bad");
+    setTimeout(() => b.classList.remove("bad"), 420);
+    E.pos = 0;
+    $("pads").classList.add("wait");
+    echoTimers.push(setTimeout(showEchoSeq, 700));
+  }
+});
+$("eShow").addEventListener("click", () => { if (E && !E.done) showEchoSeq(); });
+$("eNew").addEventListener("click", newEcho);
 
 /* confetti */
 const cv = $("fx"), cx = cv.getContext("2d");
