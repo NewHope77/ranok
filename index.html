@@ -119,8 +119,16 @@
     display:grid; place-items:center; font-size:clamp(18px,6vw,30px); line-height:1}
   .patt span.now{background:var(--pink); animation:nudge 1.4s ease-in-out infinite}
   .gwrap{flex:1; min-height:0; display:grid; place-items:center}
-  .grid{display:grid; grid-template-columns:repeat(4,1fr); gap:5px;
-    width:min(100%, 360px, calc((100dvh - 170px) * 0.56))}
+  .board{display:flex; flex-direction:column; gap:6px; width:min(100%, 360px, calc((100dvh - 170px) * 0.50))}
+  .grid{display:grid; grid-template-columns:repeat(4,1fr); gap:5px}
+  .finish{all:unset; cursor:pointer; box-sizing:border-box; display:grid; place-items:center; text-align:center;
+    height:min(16vw, 62px); border-radius:16px; background:var(--white); border:4px dashed var(--plum);
+    font-size:min(9vw, 38px); line-height:1; opacity:.55; transition:opacity .3s, background .3s}
+  .finish.ready{opacity:1; background:var(--sun); border-style:solid; animation:nudge 1.3s ease-in-out infinite}
+  .finish.won{opacity:1; background:var(--leaf); border-style:solid; animation:pop .6s}
+  .finish:active{transform:scale(.96)}
+  .finish:focus-visible{outline:4px solid var(--sky); outline-offset:3px}
+  .finish.bad{animation:shake .4s}
   .cell{all:unset; cursor:pointer; box-sizing:border-box; aspect-ratio:1; display:grid; place-items:center;
     background:var(--white); border:3px solid #E0A96D; border-radius:12px; font-size:min(7vw, 30px); line-height:1;
     transition:background .25s, transform .12s}
@@ -179,7 +187,12 @@
     <div class="patt" id="patt" aria-label="Порядок рухів"></div>
     <button class="small" id="gNew" type="button" aria-label="Нова гра">🎲</button>
   </header>
-  <div class="gwrap"><div class="grid" id="grid" role="group" aria-label="Стежка рухів"></div></div>
+  <div class="gwrap">
+    <div class="board">
+      <div class="grid" id="grid" role="group" aria-label="Стежка рухів"></div>
+      <button class="finish" id="finish" type="button" aria-label="Фініш">🏁</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -364,6 +377,9 @@ function drawGame(){
       data-cell="${i}" aria-label="${G.cells[i]}">${G.cells[i]}</button>`;
   }
   $("grid").innerHTML = html;
+  const atEnd = G.step === G.path.length - 1;
+  $("finish").className = "finish" + (G.done ? " won" : (atEnd ? " ready" : ""));
+  $("finish").textContent = G.done ? "🏆" : "🏁";
 }
 
 function newGame(){
@@ -380,15 +396,26 @@ $("grid").addEventListener("click", e => {
     G.step++;
     const r = b.getBoundingClientRect();
     burst(r.left + r.width / 2, r.top + r.height / 2, 12);
-    if (G.step === G.path.length - 1){
-      G.done = true; play("win");
-      setTimeout(bigParty, 200);
-    } else play("done", G.step % 5);
+    play("done", G.step % 5);
     drawGame();
   } else {
     play("undo");
     b.classList.add("bad");
     setTimeout(() => b.classList.remove("bad"), 420);
+  }
+});
+
+$("finish").addEventListener("click", () => {
+  if (!G || G.done) return;
+  if (G.step === G.path.length - 1){
+    G.done = true; play("win"); drawGame();
+    const r = $("finish").getBoundingClientRect();
+    burst(r.left + r.width / 2, r.top + r.height / 2, 30);
+    setTimeout(bigParty, 200);
+  } else {
+    play("undo");
+    $("finish").classList.add("bad");
+    setTimeout(() => $("finish").classList.remove("bad"), 420);
   }
 });
 
